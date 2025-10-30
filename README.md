@@ -56,6 +56,80 @@ Using semantic segmentation, the model identifies oil-contaminated regions in sa
 
 ---
 
+
+## 📂 Dataset
+
+**Oil Spill Detection via Aerial Drone Imagery** -**Zenodo**.
+
+🔗 **Dataset :** [https://zenodo.org/records/10555314](https://zenodo.org/records/10555314)
+
+| **Property**          | **Description**    
+| --------------------- | --------------------------
+| **Source**            | Aerial drone imagery captured over ocean surfaces                                                           
+| **Image Format**      | RGB images (`.jpg`, `.png`)                       |                        
+| **Mask Format**       | Single-channel binary masks (0/255)                                        
+| **Usage**             | Semantic segmentation for oil spill localization                           
+| **Splits**           | Train 70%,Validation 20%,Test 10%   
+
+---
+
+## 🧹 Data Preprocessing & Augmentation
+
+To help the model learn meaningful oil spill features and generalize well to diverse real-world marine conditions.
+
+### ✅ Preprocessing Steps
+
+| **Step**                 | **Description**                                                             |
+| ------------------------ | --------------------------------------------------------------------------- |
+| **Resizing**             | Images and masks are resized to **256 × 256 px** for consistent batch input |
+| **Normalization**        | Pixel intensity scaled from **[0–255] → [0–1]**                             |
+| **Mask Binarization**    | Ground-truth masks converted to binary (0 = Water, 1 = Oil Spill)           |
+| **Train/Val/Test Split** | Dataset divided as 70% train / 20% validation / 10% test                    |
+
+
+---
+
+### 🎯 Data Augmentation
+
+Oil spills vary in appearance based on lighting, angle, and sea conditions. Augmentations improve **model robustness** and **reduce overfitting**.
+| **Operation**                    | **TensorFlow Layer**                                    |
+| -------------------------------- | ------------------------------------------------------- |
+| **Horizontal & Vertical Flip**   | `tf.keras.layers.RandomFlip("horizontal_and_vertical")` |
+| **Random Rotation**              | `tf.keras.layers.RandomRotation(0.2)`                   |
+| **Random Translation**           | `tf.keras.layers.RandomTranslation(0.1, 0.1)`           |
+| **Random Zoom**                  | `tf.keras.layers.RandomZoom(0.2)`                       |
+| **Pixel Clipping (SafeAugment)** | `tf.clip_by_value(x, 0.0, 1.0)`                         |
+| **Binary Mask Thresholding**     | `tf.cast(mask > 0.5, tf.float32)`                       |
+
+
+> 🟢 All transformations are applied identically to both **images and masks** to preserve spatial alignment.
+
+
+---
+
+## 🧠 Model Architecture — U-Net
+
+The model is based on the **U-Net** architecture — a powerful design originally developed for biomedical image segmentation, now widely used in geospatial and environmental analysis.
+
+| **Layer Type**  | **Description**                                                    |
+| --------------- | ------------------------------------------------------------------ |
+| **Conv Blocks** | 2D Convolution + BatchNorm + ReLU + Dropout                        |
+| **Encoder**     | 4 downsampling stages using MaxPooling                             |
+| **Bottleneck**  | Deepest feature extractor capturing contextual details             |
+| **Decoder**     | 4 upsampling blocks with skip connections for fine detail recovery |
+| **Output**      | 1×1 Conv layer with **Sigmoid** for binary mask prediction         |
+
+
+### 💡 Why U-Net?
+
+* 🧩 Retains fine oil spill boundaries through skip connections
+* ⚡ Highly efficient even on smaller datasets
+* 🌊 Produces precise pixel-level maps ideal for spill area localization
+
+---
+
+---
+
 ## ⚙️ Installation & Setup
 
 ### 1️⃣ Clone the Repository
