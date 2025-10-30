@@ -128,8 +128,6 @@ The model is based on the **U-Net** architecture — a powerful design originall
 
 ---
 
----
-
 ## ⚙️ Installation & Setup
 
 ### 1️⃣ Clone the Repository
