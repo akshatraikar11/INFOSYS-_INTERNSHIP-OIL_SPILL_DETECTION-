@@ -1,6 +1,6 @@
 
 
-# 🛢️ Oil Spill Detection AI
+# 🌊 DeepSpill — Oil Spill Detection
 
 **Deep Learning-powered real-time detection of oil spills in satellite and aerial imagery**
 
@@ -13,64 +13,40 @@
 
 ## 🌍 Overview
 
-This project is a **complete AI-based system** that detects **oil spills** from satellite or aerial images using **deep learning (TensorFlow)** and a **Streamlit web interface**.
-It is designed with a focus on:
-
-* **Accuracy:** Reduces false positives from sunlight reflection or wave patterns.
-* **Interactivity:** Real-time image uploads and visual results.
-* **Automation:** Stores detections in a database and optionally sends **email alerts** for high-severity events.
+**DeepSpill** is designed to assist in early oil spill detection to prevent environmental disasters and improve marine ecosystem protection.  
+Using semantic segmentation, the model identifies oil-contaminated regions in satellite imagery with confidence-based visualization.
 
 ---
 
-## 🚀 Live Demo
+## ✨ Features
+
+- 🧩 **Deep Learning Model:** Trained using TensorFlow/Keras for high-precision spill segmentation.  
+- 🖼️ **Interactive Streamlit Interface:** Upload and visualize spill detection results instantly.  
+- 💾 **Integrated SQLite Database:** Stores detection history and metrics for future reference.  
+- 📊 **Smart Post-Processing:** Reduces false positives from reflections and wakes.  
+- ⚡ **AI Confidence Metrics:** Multi-level detection indicators (High, Medium, Low).  
+
+---
+
+## 🚀 Live Demo(Deployed)
 👉 [Click here to view the deployed app](https://deepspill-oilspilldetection.streamlit.app/)
 
+---
 
-## ⚙️ Features
+## 🧰 Tech Stack
 
-✅ **AI-Powered Detection** – Built using a custom-trained CNN model (`oil_spill_model.h5`)
-✅ **Streamlit Web Interface** – Simple drag-and-drop interface for real-time predictions
-✅ **Advanced Postprocessing** – Reduces false positives via shape and texture analysis
-✅ **Overlay Visualization** – Displays color-coded confidence masks (Red, Orange, Yellow, Blue)
-✅ **Detection History** – Automatically stores detections in `oil_spill_detections.db`
-✅ **Monitoring Dashboard** – Real-time performance metrics and refresh mode
-✅ **Email Alerts (Optional)** – Sends alerts when oil spills are detected above a threshold
+| Category | Tools / Libraries |
+|-----------|------------------|
+| **Frontend** | Streamlit, HTML/CSS |
+| **Backend** | Python, TensorFlow / Keras |
+| **Database** | SQLite3 |
+| **Visualization** | PIL, NumPy, Matplotlib |
+| **Version Control** | Git & GitHub |
+
 
 ---
 
-## 🧠 System Architecture
-
-```
-                  ┌──────────────────────────┐
-                  │    Streamlit Frontend    │
-                  │  (User Upload Interface) │
-                  └────────────┬─────────────┘
-                               │
-                               ▼
-                  ┌──────────────────────────┐
-                  │ TensorFlow Model (h5)    │
-                  │  - Preprocessing          │
-                  │  - Segmentation           │
-                  │  - Confidence Estimation  │
-                  └────────────┬─────────────┘
-                               │
-                               ▼
-              ┌────────────────────────────────────┐
-              │  Post-processing (OpenCV filters)  │
-              │  - Morphological operations         │
-              │  - Shape & reflection filtering     │
-              └────────────────┬────────────────────┘
-                               │
-                               ▼
-                  ┌──────────────────────────┐
-                  │ SQLite Database Logging  │
-                  │ Email Alert System (Opt) │
-                  └──────────────────────────┘
-```
-
----
-
-## 🚀 How to Run the Project
+## ⚙️ Installation & Setup
 
 ### 1️⃣ Clone the Repository
 
@@ -79,22 +55,24 @@ git clone https://github.com/akshatraikar11/INFOSYS-_INTERNSHIP-OIL_SPILL_DETECT
 cd INFOSYS-_INTERNSHIP-OIL_SPILL_DETECTION-
 ```
 
-### 2️⃣ Install Requirements
+### 2️⃣ Create and Activate Virtual Environment
+
+python -m venv venv
+venv\Scripts\activate     # for Windows
+source venv/bin/activate  # for macOS/Linux
+
+
+### 3️⃣ Install Dependencies
 
 Make sure you have **Python 3.8+** installed.
 Then install dependencies using:
-
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3️⃣ Launch the Streamlit App
+### 4️⃣ Run the Application and Upload an Image
 
-```bash
 streamlit run streamlit_oil_spill_app.py
-```
-
-### 4️⃣ Upload an Image
 
 Upload any satellite or aerial image (JPG, PNG, or TIFF) and view:
 
@@ -137,13 +115,17 @@ Each detection is logged with:
 ## 📁 Folder Structure
 
 ```
-📦 INFOSYS-_INTERNSHIP-OIL_SPILL_DETECTION-
-├── Oil_Spill_Detection.ipynb     # Model training & evaluation notebook
-├── streamlit_oil_spill_app.py    # Main Streamlit application
-├── oil_spill_model.h5            # Trained model weights
-├── oil_spill_detections.db       # SQLite database
-├── requirements.txt              # Required dependencies
-└── README.md                     # Project documentation
+📦 DeepSpill
+├── .streamlit/ — Streamlit config (theme, layout) via config.toml
+├── uploads/ — Saved uploaded images for detection
+├── results/ — Saved overlays/masks (e.g., result_YYYYMMDD_HHMMSS.jpg )
+├── venv/ — Local Python virtual environment (activate before running)
+├── Oil_Spill_Detection.ipynb — Model training and evaluation notebook
+├── streamlit_oil_spill_app.py — Main Streamlit application (UI + inference pipeline)
+├── oil_spill_model.h5 — Trained TensorFlow/Keras segmentation model
+├── oil_spill_detections.db — SQLite database for detections
+├── requirements.txt — Python dependencies
+└── README.md — Project documentation
 ```
 
 ---
