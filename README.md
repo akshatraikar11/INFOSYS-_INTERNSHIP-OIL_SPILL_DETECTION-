@@ -29,7 +29,7 @@ Using semantic segmentation, the model identifies oil-contaminated regions in sa
 ---
 
 ## 🚀 Live Demo(Deployed)
-👉 [Click here to view the deployed app](https://deepspill-oilspilldetection.streamlit.app/)
+👉 [Click here to view the deployed app](https://deepspill.streamlit.app/)
 
 ---
 
