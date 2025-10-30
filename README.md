@@ -72,8 +72,9 @@ pip install -r requirements.txt
 
 ### 4️⃣ Run the Application and Upload an Image
 
+```bash
 streamlit run streamlit_oil_spill_app.py
-
+```
 Upload any satellite or aerial image (JPG, PNG, or TIFF) and view:
 
 * The **AI-detected oil spill mask**
@@ -144,4 +145,3 @@ Each detection is logged with:
 
 This project is licensed under the **MIT License** – feel free to use, modify, and distribute.
 
--
