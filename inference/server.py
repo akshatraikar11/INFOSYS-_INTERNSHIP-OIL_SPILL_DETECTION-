@@ -11,7 +11,6 @@ import numpy as np
 from PIL import Image
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
-from tensorflow.keras.models import load_model
 
 MODEL_PATH = os.environ.get(
     "MODEL_PATH",
@@ -25,6 +24,13 @@ model = None
 def load_inference_model(path=MODEL_PATH):
     global model
     if model is None:
+        try:
+            from tensorflow.keras.models import load_model
+        except ImportError:
+            try:
+                from keras.models import load_model
+            except ImportError:
+                raise RuntimeError('TensorFlow/Keras required for inference.')
         model = load_model(path, compile=False)
     return model
 
