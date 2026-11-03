@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+frontend/dist/
+backend/tmp/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Model & DB (large / generated files)
+*.h5
+*.tif
+*.tiff
+oil_spill_detections.db
+
+# Uploads & results (runtime dirs)
+uploads/
+results/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp

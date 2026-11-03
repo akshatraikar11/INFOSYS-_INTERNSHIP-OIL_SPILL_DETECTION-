@@ -1,11 +1,4 @@
-streamlit>=1.20
-tensorflow>=2.12
-numpy
-pillow
-scikit-learn
-requests
-fastapi
-uvicorn
-opencv-python
-pandas
-streamlit-autorefresh
+# Root requirements — inference service only.
+# Install with: pip install -r inference/requirements.txt
+# This file is kept for tools that expect a top-level requirements.txt.
+-r inference/requirements.txt
