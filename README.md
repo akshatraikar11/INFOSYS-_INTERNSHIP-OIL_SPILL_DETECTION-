@@ -210,8 +210,8 @@ Every analysis run through the full-stack system is automatically recorded into 
 ## 👨‍💻 Author & Project Credits
 
 * **Developer:** **Akshat Raikar**
-* **Institution:** Atharva College of Engineering (Information Technology, 2027)
 * **Program:** **Infosys Springboard AI Internship 6.0**
+* **Track:** Artificial Intelligence & Machine Learning
 * **Domain:** Computer Vision, Remote Sensing & Environmental AI
 
 ---
