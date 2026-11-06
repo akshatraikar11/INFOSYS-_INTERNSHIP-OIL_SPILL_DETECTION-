@@ -216,6 +216,21 @@ Every analysis run through the full-stack system is automatically recorded into 
 
 ---
 
+## 📜 Certification & Credential Verification
+
+This engineering solution was officially evaluated and completed under **Infosys Limited** and **Infosys Springboard**:
+
+<p align="center">
+  <img src="docs/certificate.jpg" alt="Infosys Springboard Certificate of Completion - Akshat Raikar" width="750" style="border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);" />
+</p>
+
+* **Awarded To:** **Akshat Raikar**
+* **Project Assignment:** `Internship 6.0 (B2): Development of AI-Driven System for Oil Spill Identification and Monitoring`
+* **Issuing Authority:** **Infosys Limited** (Education, Training and Assessment)
+* **Authentication Portal:** [verify.onwingspan.com](https://verify.onwingspan.com)
+
+---
+
 ## 📄 License
 
 This project is licensed under the **MIT License** — feel free to use, modify, and distribute for educational, research, and non-commercial maritime safety applications.
