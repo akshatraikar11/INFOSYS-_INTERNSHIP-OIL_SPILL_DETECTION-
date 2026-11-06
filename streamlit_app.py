@@ -434,7 +434,7 @@ if target_image_bytes is not None:
             st.image(blended, use_container_width=True)
         with c3:
             st.markdown("**3. Binarized Segmentation Mask**")
-            st.image(full_mask * 255, cmap="gray", use_container_width=True)
+            st.image((full_mask * 255).astype(np.uint8), use_container_width=True)
 
     with tab2:
         c_prob, c_hist = st.columns(2)
