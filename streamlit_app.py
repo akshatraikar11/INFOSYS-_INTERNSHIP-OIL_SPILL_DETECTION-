@@ -1,4 +1,5 @@
 import os
+import io
 import json
 import time
 from pathlib import Path
@@ -23,14 +24,12 @@ st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;600;700&display=swap');
 
-    /* Global Dark Oceanic Theme */
     .stApp {
         background: radial-gradient(circle at 50% 10%, #0d1b2a 0%, #080f18 60%, #03070d 100%);
         color: #e0e6ed;
         font-family: 'Inter', sans-serif;
     }
 
-    /* Top HUD Banner */
     .hud-header {
         background: linear-gradient(90deg, rgba(0, 242, 254, 0.08) 0%, rgba(79, 172, 254, 0.03) 100%);
         border: 1px solid rgba(0, 242, 254, 0.25);
@@ -81,7 +80,6 @@ st.markdown("""
         100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
     }
 
-    /* Glassmorphism Metric Cards */
     .metric-card {
         background: rgba(15, 26, 46, 0.7);
         border: 1px solid rgba(255, 255, 255, 0.08);
@@ -103,7 +101,6 @@ st.markdown("""
         letter-spacing: 0.08em;
     }
 
-    /* Threat Level Alerts */
     .alert-critical {
         background: linear-gradient(90deg, rgba(239, 68, 68, 0.2) 0%, rgba(185, 28, 28, 0.1) 100%);
         border-left: 4px solid #ef4444;
@@ -126,7 +123,6 @@ st.markdown("""
         margin-top: 1rem;
     }
 
-    /* Tabs & Widgets */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
     }
@@ -203,12 +199,12 @@ with st.sidebar:
     st.markdown("**2. Decision Thresholds**")
     threshold = st.slider(
         "Detection Sensitivity (T)",
-        min_value=0.10, max_value=0.95, value=0.60, step=0.05,
-        help="Higher values reduce false alarms from look-alikes; lower values catch faint sheens."
+        min_value=0.05, max_value=0.90, value=0.30, step=0.05,
+        help="Adjust probability cutoff. Values around 0.25 - 0.40 provide high-recall detection of dark oil slicks."
     )
     min_speckle = st.slider(
         "Speckle Suppression (Min Pixels)",
-        min_value=5, max_value=150, value=35, step=5,
+        min_value=5, max_value=150, value=25, step=5,
         help="Morphological connected-component filter removing isolated radar speckle clusters."
     )
     alpha_blend = st.slider(
@@ -219,10 +215,12 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("### 🛰️ System Status")
     if model is not None:
-        st.success(f"● Model Loaded: `{os.path.basename(model_path)}`")
+        in_shape = model.inputs[0].shape
+        st.success(f"● Model Active: `{os.path.basename(model_path)}`")
+        st.caption(f"Input Specification: `{in_shape}`")
     else:
-        st.warning("● Running in Standalone Synthetic Filter Mode (Model file pending)")
-    st.caption("Infosys Springboard AI 6.0 | Sentinel-1 SAR Oil Spill Segmentation Engine")
+        st.warning("● Standalone Heuristic SAR Filter Mode Active")
+    st.caption("Infosys Springboard AI 6.0 | Sentinel-1 SAR Oil Spill Engine")
 
 # =============================================================================
 # 4. MAIN DASHBOARD HEADER
@@ -241,13 +239,13 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Sample Images Discovery
+# Discover Benchmark Images
 sample_paths = []
-search_dirs = [Path("data/oil_spill/test/images"), Path("."), Path("../")]
+search_dirs = [Path("data/oil_spill/train/images"), Path("data/oil_spill/test/images"), Path("."), Path("../")]
 for d in search_dirs:
     if d.exists():
-        sample_paths.extend(list(d.glob("*.tif*")) + list(d.glob("*.jpg")) + list(d.glob("*.png")))
-sample_paths = [p for p in sample_paths if "result" not in p.name.lower() and "fake" not in p.name.lower()][:10]
+        sample_paths.extend(list(d.glob("*.jpg")) + list(d.glob("*.png")) + list(d.glob("*.tif*")))
+sample_paths = [p for p in sample_paths if "result" not in p.name.lower() and "fake" not in p.name.lower()][:15]
 
 col_select, col_up = st.columns([1, 2])
 with col_select:
@@ -259,7 +257,6 @@ with col_up:
     st.markdown("##### 📤 Upload Satellite Image")
     uploaded_file = st.file_uploader("Upload Image", type=["png", "jpg", "jpeg", "tif", "tiff"], label_visibility="collapsed")
 
-# Resolve selected image
 target_image_bytes = None
 image_title = "Input Satellite Scene"
 
@@ -276,39 +273,63 @@ elif selected_option != "-- Select a Preloaded Sample --":
 # 5. INFERENCE & RENDER PIPELINE
 # =============================================================================
 if target_image_bytes is not None:
-    # Decode image
-    nparr = np.frombuffer(target_image_bytes, np.uint8)
-    cv_img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-    if cv_img is None:
-        st.error("Failed to decode image file. Please provide a standard PNG, JPG, or GeoTIFF.")
-        st.stop()
+    # Decode image robustly with PIL first
+    try:
+        pil_im = Image.open(io.BytesIO(target_image_bytes))
+        rgb_img = np.array(pil_im.convert('RGB'))
+    except Exception:
+        nparr = np.frombuffer(target_image_bytes, np.uint8)
+        cv_img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        if cv_img is None:
+            st.error("Failed to decode image file. Please provide a standard PNG, JPG, or TIFF.")
+            st.stop()
+        rgb_img = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
 
-    rgb_img = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
     orig_h, orig_w = rgb_img.shape[:2]
 
-    # Preprocess
-    resized = cv2.resize(rgb_img, (256, 256), interpolation=cv2.INTER_LINEAR)
-    norm_img = resized.astype(np.float32) / 255.0
-    batch_input = np.expand_dims(norm_img, axis=0)
-
-    # Inference
+    # Model input shape adaptation
     start_time = time.time()
     if model is not None:
         try:
-            raw_pred = model.predict(batch_input, verbose=0)[0, :, :, 0]
-        except Exception:
-            # Fallback if channel shape differs
-            raw_pred = np.zeros((256, 256), dtype=np.float32)
+            in_shape = model.inputs[0].shape
+            target_h = int(in_shape[1]) if in_shape[1] is not None else 128
+            target_w = int(in_shape[2]) if in_shape[2] is not None else 128
+            target_c = int(in_shape[3]) if len(in_shape) > 3 and in_shape[3] is not None else 1
+
+            if target_c == 1:
+                gray = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2GRAY)
+                resized_in = cv2.resize(gray, (target_w, target_h), interpolation=cv2.INTER_LINEAR)
+                batch_input = np.expand_dims(np.expand_dims(resized_in.astype(np.float32) / 255.0, axis=-1), axis=0)
+            else:
+                resized_in = cv2.resize(rgb_img, (target_w, target_h), interpolation=cv2.INTER_LINEAR)
+                batch_input = np.expand_dims(resized_in.astype(np.float32) / 255.0, axis=0)
+
+            pred_out = model.predict(batch_input, verbose=0)
+            if isinstance(pred_out, list):
+                pred_out = pred_out[0]
+            if pred_out.ndim == 4:
+                raw_pred = pred_out[0, :, :, 0]
+            elif pred_out.ndim == 3:
+                raw_pred = pred_out[0, :, :]
+            else:
+                raw_pred = pred_out
+        except Exception as e:
+            st.warning(f"Notice: Model execution fallback ({e})")
+            gray = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2GRAY)
+            blur = cv2.bilateralFilter(gray, 7, 50, 50)
+            raw_pred = ((blur < 85) & (blur > 15)).astype(np.float32) * 0.9
     else:
-        # Heuristic Maritime SAR backscatter fallback if model is compiling
-        gray = cv2.cvtColor(resized, cv2.COLOR_RGB2GRAY)
+        gray = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2GRAY)
         blur = cv2.bilateralFilter(gray, 7, 50, 50)
         raw_pred = ((blur < 85) & (blur > 15)).astype(np.float32) * 0.9
 
     infer_time_ms = (time.time() - start_time) * 1000
 
+    # Upscale continuous probability map to full original image size
+    full_pred = cv2.resize(raw_pred.astype(np.float32), (orig_w, orig_h), interpolation=cv2.INTER_LINEAR)
+
     # Decision Threshold Binarization
-    binary_mask = (raw_pred > threshold).astype(np.uint8)
+    binary_mask = (full_pred > threshold).astype(np.uint8)
 
     # Morphological Connected Component Filter
     num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(binary_mask, connectivity=8)
@@ -317,21 +338,18 @@ if target_image_bytes is not None:
         if stats[i, cv2.CC_STAT_AREA] >= min_speckle:
             clean_mask[labels == i] = 1
 
-    # Upscale mask to original resolution
-    full_mask = cv2.resize(clean_mask, (orig_w, orig_h), interpolation=cv2.INTER_NEAREST)
-
     # Overlay rendering (Translucent Crimson on top of Satellite background)
     overlay = rgb_img.copy()
     crimson_layer = np.zeros_like(rgb_img)
-    crimson_layer[full_mask == 1] = [235, 20, 60]  # Crimson Oil Spill Highlight
+    crimson_layer[clean_mask == 1] = [235, 20, 60]  # Crimson Oil Spill Highlight
     blended = cv2.addWeighted(overlay, 1.0 - alpha_blend, crimson_layer, alpha_blend, 0)
 
     # Neon Yellow Contour Boundary
-    contours, _ = cv2.findContours(full_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(clean_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cv2.drawContours(blended, contours, -1, (255, 240, 0), max(2, int(orig_w / 600)))
 
     # Radiometry & Geospatial Calculations
-    spill_pixels = int(np.sum(full_mask == 1))
+    spill_pixels = int(np.sum(clean_mask == 1))
     total_pixels = orig_h * orig_w
     spill_fraction = (spill_pixels / total_pixels) * 100.0
 
@@ -434,19 +452,20 @@ if target_image_bytes is not None:
             st.image(blended, use_container_width=True)
         with c3:
             st.markdown("**3. Binarized Segmentation Mask**")
-            st.image((full_mask * 255).astype(np.uint8), use_container_width=True)
+            st.image((clean_mask * 255).astype(np.uint8), use_container_width=True)
 
     with tab2:
         c_prob, c_hist = st.columns(2)
         with c_prob:
-            st.markdown("**U-Net Raw Sigmoid Probability Distribution**")
-            heat_color = cv2.applyColorMap((raw_pred * 255).astype(np.uint8), cv2.COLORMAP_JET)
+            st.markdown("**U-Net Probability Distribution Heatmap**")
+            scaled_heat = cv2.normalize(full_pred, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+            heat_color = cv2.applyColorMap(scaled_heat, cv2.COLORMAP_JET)
             st.image(cv2.cvtColor(heat_color, cv2.COLOR_BGR2RGB), use_container_width=True)
         with c_hist:
             st.markdown("**Radar Backscatter vs Spill Pixel Intensity**")
             gray_full = cv2.cvtColor(rgb_img, cv2.COLOR_RGB2GRAY)
-            spill_vals = gray_full[full_mask == 1]
-            ocean_vals = gray_full[full_mask == 0]
+            spill_vals = gray_full[clean_mask == 1]
+            ocean_vals = gray_full[clean_mask == 0]
             
             fig_stat, ax = plt.subplots(figsize=(6, 4))
             fig_stat.patch.set_facecolor('#0d1b2a')
@@ -458,7 +477,7 @@ if target_image_bytes is not None:
             ax.spines['right'].set_color('#334155')
 
             if len(ocean_vals) > 0:
-                ax.hist(ocean_vals[::10], bins=30, color='#38bdf8', alpha=0.6, label='Sea Background', density=True)
+                ax.hist(ocean_vals[::15], bins=30, color='#38bdf8', alpha=0.6, label='Sea Background', density=True)
             if len(spill_vals) > 0:
                 ax.hist(spill_vals, bins=30, color='#ef4444', alpha=0.8, label='Oil Slick', density=True)
             ax.set_xlabel('Pixel Radiance (0-255)', color='#e0e6ed')
