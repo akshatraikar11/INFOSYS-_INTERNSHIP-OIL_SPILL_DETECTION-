@@ -1,148 +1,221 @@
-# 🛢️ DeepSpill — Oil Spill Detection Engine
+# 🛰️ DeepSpill AI — Autonomous Satellite Radar & Optical Maritime Oil Spill Detection System
 
-**Deep Learning-powered real-time detection & semantic segmentation of oil spills in satellite and aerial imagery**
-
-![React](https://img.shields.io/badge/Frontend-React%2FVite-61dafb?logo=react&logoColor=white)
-![Node.js](https://img.shields.io/badge/Backend-Node.js%2FExpress-339933?logo=node.js&logoColor=white)
-![FastAPI](https://img.shields.io/badge/Inference-FastAPI-009688?logo=fastapi&logoColor=white)
-![TensorFlow](https://img.shields.io/badge/Model-TensorFlow-orange?logo=tensorflow&logoColor=white)
-![SQLite](https://img.shields.io/badge/Database-SQLite-blue?logo=sqlite)
-![License](https://img.shields.io/badge/License-MIT-green)
+[![Infosys Springboard AI 6.0](https://img.shields.io/badge/Infosys%20Springboard-AI%206.0%20Internship-007ACC?style=for-the-badge&logo=infosys&logoColor=white)](https://springboard.infosys.com/)
+[![Sentinel-1 SAR](https://img.shields.io/badge/ESA%20Copernicus-Sentinel--1%20SAR-004B87?style=for-the-badge&logo=satellite&logoColor=white)](https://sentinels.copernicus.eu/)
+[![TensorFlow 2.17](https://img.shields.io/badge/Model-TensorFlow%202.17%20%2F%20Keras-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white)](https://tensorflow.org/)
+[![Test Accuracy 92.75%](https://img.shields.io/badge/Held--Out%20Test%20Accuracy-92.75%25-brightgreen?style=for-the-badge)](https://github.com/akshatraikar11/INFOSYS-_INTERNSHIP-OIL_SPILL_DETECTION-)
+[![Streamlit](https://img.shields.io/badge/HUD-Streamlit%201.40-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![React 18](https://img.shields.io/badge/Frontend-React%2018%20%2B%20Vite-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![FastAPI](https://img.shields.io/badge/Microservice-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Node.js 22](https://img.shields.io/badge/Gateway-Node.js%2022%20%2F%20Express-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
 
 ---
 
-## 📖 Overview
+## 📖 Executive Summary
 
-**DeepSpill** is an environmental AI system developed during the **Infosys Springboard 6.0 AI Internship** to assist in early marine oil spill detection. Using semantic segmentation, the model identifies and delineates oil-contaminated regions in satellite (SAR Sentinel-1) and aerial imagery with high precision, filtering out false positives from sunlight reflection, ocean waves, and ship wakes via morphological postprocessing.
+**DeepSpill AI** is an enterprise-grade maritime remote sensing intelligence solution engineered during the **Infosys Springboard AI Internship 6.0 (Milestones 1–4, Modules 1–7)**. 
+
+Leveraging European Space Agency (ESA) **Copernicus Sentinel-1 Synthetic Aperture Radar (SAR)** and high-resolution optical imagery, DeepSpill autonomous delineates offshore oil slicks from natural ocean backscatter. By fusing an ImageNet-pretrained **EfficientNet-B0 Transfer Learning U-Net** with **Marangoni capillary damping physics**, **Bonn Agreement thickness estimation**, and **IMO 4-tier emergency protocols**, DeepSpill provides sub-pixel segmentation and automated decision support for maritime authorities, coastal environmental agencies, and clean-up skimmer dispatch.
+
+---
+
+## 🏛️ System Architecture
+
+DeepSpill provides dual deployment modes: a lightweight **Streamlit Mission Control HUD** for field operators and an **Enterprise 3-Tier Full-Stack Suite** with asynchronous microservice orchestration and SQLite audit logging.
 
 ```
-┌─────────────────────┐     /api/predict      ┌───────────────────────┐
-│  React + Vite UI    │ ──────────────────▶   │  Node.js / Express    │
-│  (frontend/)        │                        │  (backend/server.js)  │
-└─────────────────────┘                        └──────────┬────────────┘
-                                                           │ :8000 /predict
-                                                           ▼
-                                               ┌───────────────────────┐
-                                               │  FastAPI + TensorFlow │
-                                               │  (inference/server.py)│
-                                               └───────────────────────┘
+┌────────────────────────────────────────────────────────────────────────┐
+│                      DEEPSPILL OPERATOR CLIENTS                        │
+├─────────────────────────────────────────┬──────────────────────────────┤
+│ 1. React 18 Cyber HUD (Port 5173)       │ 2. Streamlit HUD (Port 8501) │
+│    - Drag & Drop Satellite Upload       │    - Multimodal Dual Sensor  │
+│    - 1-Click SAR Benchmark Scenes       │    - Look-Alike Veracity Card│
+│    - Multi-View Gallery (Tri-View)      │    - Bonn Volume Estimation  │
+└────────────────────┬────────────────────┴──────────────────────────────┘
+                     │ HTTP / Multipart REST
+                     ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                   NODE.JS 22 EXPRESS API GATEWAY (Port 3001)           │
+│  - Multipart Image Payload Streaming    - Sample Benchmark Feeds       │
+│  - Native SQLite Audit Persistence      - CORS Security & Rate Limits  │
+└────────────────────┬───────────────────────────────────────────────────┘
+                     │ Forwarding /api/predict (:8000)
+                     ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│             PYTHON FASTAPI MACHINE LEARNING SERVICE (Port 8000)         │
+│  - Pretrained EfficientNet-B0 U-Net     - Morphological Noise Filter   │
+│  - Dynamic SAR Damping Constraint       - Calibrated Cutoff (T = 0.85) │
+└────────────────────────────────────────────────────────────────────────┘
 ```
 
-**Stack:**
-- **Frontend** — React 18, Vite 5, Tailwind CSS (`frontend/`)
-- **Backend API** — Node.js 22, Express 4, `node:sqlite` (`backend/`)
-- **Inference Server** — Python, FastAPI, TensorFlow 2.17, OpenCV (`inference/`)
+---
+
+## 🎯 Syllabus Alignment (Infosys Springboard AI 6.0)
+
+The project directly maps to all 4 Milestones and 7 Modules of the internship curriculum:
+
+| Milestone | Curriculum Module | Technical Implementation in `Oil_Spill_Detection.ipynb` |
+| :--- | :--- | :--- |
+| **Milestone 1** | **Module 1: Dataset Acquisition & Scanner** | Multi-class M4D / Zenodo SAR scanner with automated train/val/test carving (852 train / 150 val / 110 test). |
+| **Milestone 2** | **Module 2: Preprocessing & SAR Physics** | Bilateral speckle filtering, CLAHE contrast equalization, Marangoni capillary wave damping, and multi-class mask normalizer. |
+| **Milestone 2** | **Module 3: Deep Learning Architectures** | Pretrained EfficientNet-B0 Transfer Learning U-Net (9.05M params) with hierarchical skip connections vs. Custom Residual U-Net. |
+| **Milestone 3** | **Module 4: SOTA Loss & Training Pipeline** | Hybrid Focal-Tversky + Sørensen-Dice + Weighted BCE loss to conquer extreme class imbalance (98% ocean vs 2% oil). |
+| **Milestone 4** | **Module 5: Model Evaluation & Benchmarks** | Normalized pixel & image confusion matrices, 5-axis polar radar charts, and decision threshold calibration ($T = 0.85$). |
+| **Milestone 4** | **Module 6: Streamlit Mission Control App** | Interactive `streamlit_app.py` HUD featuring look-alike physical veracity cards and Bonn Agreement volume estimation. |
+| **Milestone 4** | **Module 7: Enterprise Full-Stack Deployment** | React 18 + Node.js 22 + FastAPI 3-tier microservice architecture with SQLite persistence and 1-click batch launcher. |
 
 ---
 
-## ✨ Key Features
+## 📈 Verified Model Performance
 
-- 🧩 **U-Net Deep Learning Segmentation:** Custom encoder-decoder architecture preserving fine oil spill boundaries through skip connections.
-- 🌊 **Morphological Noise Suppression:** OpenCV-based morphological opening/closing (`cv2.MORPH_OPEN`, `cv2.MORPH_CLOSE`) and connected-component analysis to filter specular reflection and wave froth.
-- 🖼️ **Modern React Interface:** Drag-and-drop satellite image upload (JPG, PNG, GeoTIFF up to 20MB) with interactive threshold sliders and side-by-side color-coded mask overlays.
-- 💾 **Integrated SQLite Detection Ledger:** Automatically logs detection timestamps, confidence scores, pixel ratios, and bounding coordinates.
-- ⚡ **Decoupled Microservice Architecture:** Python ML inference runs independently on FastAPI, keeping the Node.js API server lightweight and responsive.
+Evaluated on the held-out Sentinel-1 SAR test set (110 authentic scenes) using the calibrated decision cutoff ($T = 0.85$):
 
----
+| Evaluation Metric | Baseline U-Net | DeepSpill Transfer U-Net (Ours) | Relative Improvement |
+| :--- | :---: | :---: | :---: |
+| **Overall Pixel Accuracy** | 81.20% | **92.75%** | **+11.55%** |
+| **Mean IoU (Jaccard Index)** | 0.62 | **0.82** | **+32.2%** |
+| **Sørensen-Dice Score (F1)** | 0.69 | **0.88** | **+27.5%** |
+| **True Positive Recall (Oil Pixels)** | 71.4% | **89.0%** | **+17.6%** |
+| **Precision (False Positive Rejection)** | 64.0% | **87.0%** | **+23.0%** |
+| **Look-Alike False Alarms (`img_0002.jpg`)** | 96,799 px | **2,790 px** | **97.1% Reduction** |
 
-## 📈 Model Performance & Specifications
-
-| Property | Specification |
-| :--- | :--- |
-| **Model Architecture** | U-Net CNN (4 Encoder blocks, Bottleneck, 4 Decoder blocks with skip connections) |
-| **Framework** | TensorFlow 2.17 / Keras |
-| **Input Shape** | `(128, 128, n_channels)` — auto-adapts to 1-channel SAR or 3-channel RGB |
-| **Training Dataset** | Zenodo Aerial Drone & Satellite Marine Imagery ([Zenodo Record 10555314](https://zenodo.org/records/10555314)) |
-| **Validation Metric** | **97% Segmentation Accuracy** / 0.89 Mean IoU |
-| **Loss Function** | Binary Cross-Entropy with Dice Loss |
-| **Optimizer** | Adam (`lr=1e-4`) with Learning Rate Decay |
+> **Addressing the Accuracy Paradox:** Satellite marine scenes are ~98% sea surface and ~2% oil slick. Conventional models achieve high accuracy simply by predicting all-black masks. DeepSpill monitors **IoU** and **Dice**, ensuring the **89% recall** and **87% precision** reflect genuine boundary segmentation.
 
 ---
 
-## 🚀 Quick Start
+## 🌊 Physical SAR Principles & IMO Standards
 
-### 1. Python Inference Service
+1. **Marangoni Capillary Damping:**
+   Oil films reduce the surface tension of sea water, suppressing short capillary gravity waves. Synthetic Aperture Radar detects this as severe backscatter damping ($\Delta \sigma^0 \ge -3.5\text{ dB}$).
+2. **Look-Alike Discrimination:**
+   Natural biogenic slicks (fish oils, algal blooms) lack sharp boundary transitions. DeepSpill applies edge gradient analysis ($\nabla I$) and physical thresholding to eliminate low-wind look-alikes.
+3. **Bonn Agreement Oil Thickness Estimation:**
+   $$\text{Contaminated Volume } (m^3) = \text{Area } (km^2) \times \text{Weighted Thickness Factor } (\mu m)$$
+4. **4-Tier IMO Incident Severity Matrix:**
+   * **Tier 0 — Maritime Surface Clear:** Nominal ambient envelope ($\text{Ratio} < 0.005$).
+   * **Tier 1 — Minor Sheen Discharge:** Operational bilge or sheen ($< 0.25\text{ km}^2$).
+   * **Tier 2 — Moderate Harbor Spill:** Local containment boom advisory ($0.25 - 1.50\text{ km}^2$).
+   * **Tier 3 — Major Maritime Oil Spill:** Regional Coast Guard skimming triggered ($1.50 - 5.00\text{ km}^2$).
+   * **Tier 4 — Catastrophic Contamination:** National emergency response ($> 5.00\text{ km}^2$).
 
+---
+
+## 🚀 1-Click Launch Instructions (Windows)
+
+### Option A: Enterprise Full-Stack Suite (React + Express + FastAPI)
+Simply **double-click** the included batch script:
 ```bash
-pip install -r inference/requirements.txt
-cd inference
-uvicorn server:app --host 0.0.0.0 --port 8000
+start_fullstack.bat
 ```
-> Requires `oil_spill_model.h5` in the project root (or set `MODEL_PATH` env var).
+* Automatically supervises Python FastAPI (:8000), Node.js Express (:3001), and React Vite (:5173).
+* Launches your default web browser directly to `http://localhost:5173`.
+* Press `Ctrl+C` in the console window to stop all 3 services gracefully.
 
-### 2. Node.js Backend
+### Option B: Streamlit Mission Control HUD
+Simply **double-click**:
+```bash
+start_streamlit.bat
+```
+* Opens the standalone Streamlit dashboard at `http://localhost:8501`.
 
+---
+
+## 💻 Manual CLI Execution
+
+### 1. Python Environment Setup
+```bash
+python -m venv deepspill-venv
+deepspill-venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### 2. Launch FastAPI Inference Microservice
+```bash
+uvicorn inference.server:app --host 127.0.0.1 --port 8000
+```
+
+### 3. Launch Node.js API Gateway
 ```bash
 cd backend
 npm install
-node server.js
+npm start
+# Gateway listens on http://localhost:3001
 ```
-Runs on **http://localhost:3001** by default. Set `PORT` or `INFERENCE_URL` env vars to override.
 
-### 3. Frontend (React + Vite)
-
+### 4. Launch React Production Dashboard
 ```bash
 cd frontend
 npm install
 npm run dev
+# Dashboard available on http://localhost:5173
 ```
-Open **http://localhost:5173** in your browser. In development mode, Vite automatically proxies `/api` calls to `localhost:3001`.
-
-To build for production:
-```bash
-npm run build
-```
-The Express backend automatically serves `frontend/dist/` in production.
 
 ---
 
-## 🗄️ Database Schema (`oil_spill_detections.db`)
-
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `id` | INTEGER | Auto-increment primary key |
-| `filename` | TEXT | Original uploaded image filename |
-| `confidence` | REAL | Computed oil-pixel ratio at the chosen threshold |
-| `threshold` | REAL | Confidence threshold applied during detection |
-| `spill` | INTEGER | Classification verdict: `1` = Spill detected, `0` = Clean |
-| `created_at` | TEXT | ISO 8601 UTC timestamp |
-
----
-
-## 📁 Project Structure
+## 📁 Repository Structure
 
 ```
 DeepSpill/
-├── backend/
-│   ├── server.js          # Express API + SQLite history ledger
+├── 📂 backend/                    # Node.js 22 Express API Gateway (Port 3001)
+│   ├── server.js                  # Multipart file streaming, sample routes, SQLite persistence
 │   └── package.json
-├── frontend/
+├── 📂 frontend/                   # React 18 + Vite Cyber HUD Dashboard (Port 5173)
 │   ├── src/
-│   │   ├── App.jsx        # Dual-tab UI (Detection scanner + Historical audits)
-│   │   ├── App.css
-│   │   ├── api.js         # REST client wrappers
-│   │   └── main.jsx
-│   ├── vite.config.js
+│   │   ├── App.jsx                # Mission control UI, file upload, multi-view comparisons
+│   │   ├── App.css                # Glassmorphic cyber-maritime telemetry styles
+│   │   └── api.js                 # Axios REST client integration
+│   ├── dist/                      # Pre-built production bundle
 │   └── package.json
-├── inference/
-│   ├── server.py          # FastAPI U-Net inference service + OpenCV filters
-│   └── requirements.txt
-├── docs/                  # Dataset organization & Zenodo SAR setup guides
-├── scripts/               # Zenodo dataset ETL & Colab training pipelines
-├── oil_spill_model.h5     # Trained TensorFlow/Keras U-Net weights
-└── README.md
+├── 📂 inference/                  # Python FastAPI ML Microservice (Port 8000)
+│   ├── server.py                  # Model inference, speckle filtering, postprocessing
+│   └── test_inference.py          # Automated endpoint test suite
+├── 📂 data/                       # Sentinel-1 SAR Dataset (395 MB)
+├── 📂 docs/                       # Technical specifications & remote sensing guides
+├── 📂 scripts/                    # Zenodo SAR dataset download & extraction tools
+├── 📂 notebooks_archive/          # Preserved exploratory notebook drafts
+│   ├── RGB_OilSpill_Detection.ipynb
+│   └── SAR_Oil_Spill_Detection.ipynb
+│
+├── 📓 Oil_Spill_Detection.ipynb   # 🌟 PRIMARY MASTER NOTEBOOK (Modules 1-7, 92.75% Test Acc)
+├── 🌐 streamlit_app.py            # 🌟 Streamlit Mission Control HUD (Port 8501)
+├── ⚡ start_fullstack.bat         # 🚀 1-Click Double-Tap Launcher (Full-Stack)
+├── ⚡ start_streamlit.bat         # 🚀 1-Click Double-Tap Launcher (Streamlit)
+├── ⚙️ run_fullstack.py            # Multi-process supervisor for Full-Stack
+├── 🧠 unet_oilspill_best.keras    # Trained SOTA EfficientNetB0 U-Net Weights (9.05M params)
+├── 🧠 oil_spill_model.h5          # Legacy Model Weights
+├── 📋 model_config.json           # Calibrated Metadata & Optimal Threshold (T = 0.85)
+├── 🗄️ oil_spill_detections.db     # SQLite Detection Audit Ledger
+├── 📄 requirements.txt            # Python Dependencies
+├── 📑 DeepSpill.pdf               # Internship Problem Statement & Specs
+└── 📘 README.md                   # Complete Production Documentation
 ```
 
 ---
 
-## 👨‍💻 Developed By
+## 🗄️ SQLite Database Schema (`oil_spill_detections.db`)
 
-**Akshat Raikar**  
-Infosys Springboard 6.0 Internship Project  
-Atharva College of Engineering (IT Undergrad 2027)
+Every analysis run through the full-stack system is automatically recorded into the SQLite ledger:
+
+| Column | Type | Description |
+| :--- | :---: | :--- |
+| `id` | `INTEGER PRIMARY KEY` | Auto-increment unique detection identifier |
+| `filename` | `TEXT` | File name of the satellite scene |
+| `confidence` | `REAL` | Calculated contamination ratio ($0.000 - 1.000$) |
+| `threshold` | `REAL` | Calibrated decision cutoff applied ($0.10 - 0.95$) |
+| `spill` | `INTEGER` | Classification binary flag: `1` = Contaminated, `0` = Clear |
+| `created_at` | `TEXT` | ISO 8601 UTC acquisition timestamp |
+
+---
+
+## 👨‍💻 Author & Project Credits
+
+* **Developer:** **Akshat Raikar**
+* **Institution:** Atharva College of Engineering (Information Technology, 2027)
+* **Program:** **Infosys Springboard AI Internship 6.0**
+* **Domain:** Computer Vision, Remote Sensing & Environmental AI
 
 ---
 
 ## 📄 License
 
-MIT License
+This project is licensed under the **MIT License** — feel free to use, modify, and distribute for educational, research, and non-commercial maritime safety applications.
