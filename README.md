@@ -221,7 +221,7 @@ Every analysis run through the full-stack system is automatically recorded into 
 This engineering solution was officially evaluated and completed under **Infosys Limited** and **Infosys Springboard**:
 
 <p align="center">
-  <img src="docs/certificate.jpg" alt="Infosys Springboard Certificate of Completion - Akshat Raikar" width="750" style="border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);" />
+  <img src="docs/infosys_certificate.png" alt="Infosys Springboard Certificate of Completion - Akshat Raikar" width="750" style="border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);" />
 </p>
 
 * **Awarded To:** **Akshat Raikar**
