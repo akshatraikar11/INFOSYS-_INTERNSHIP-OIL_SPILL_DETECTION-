@@ -22,6 +22,7 @@ backend/tmp/
 
 # Model & DB (large / generated files)
 *.h5
+*.keras
 *.tif
 *.tiff
 oil_spill_detections.db

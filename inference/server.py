@@ -12,10 +12,10 @@ from PIL import Image
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 
-MODEL_PATH = os.environ.get(
-    "MODEL_PATH",
-    os.path.join(os.path.dirname(__file__), "..", "oil_spill_model.h5"),
-)
+_keras_path = os.path.join(os.path.dirname(__file__), "..", "unet_oilspill_best.keras")
+_h5_path = os.path.join(os.path.dirname(__file__), "..", "oil_spill_model.h5")
+_default_model = _keras_path if os.path.exists(_keras_path) else _h5_path
+MODEL_PATH = os.environ.get("MODEL_PATH", _default_model)
 DEFAULT_INPUT_SIZE = (128, 128)
 
 model = None
@@ -66,7 +66,7 @@ def clean_mask(mask, min_area=100):
         return mask
 
 
-def postprocess_prediction(pred, original_size, threshold=0.1):
+def postprocess_prediction(pred, original_size, threshold=0.35, input_pil=None):
     if isinstance(pred, list):
         pred = pred[0]
     mask = np.array(pred)
@@ -76,40 +76,45 @@ def postprocess_prediction(pred, original_size, threshold=0.1):
         mask = mask[:, :, 0]
     if mask.min() < -1 or mask.max() > 1:
         mask = 1 / (1 + np.exp(-mask))
-    mask = (mask - mask.min()) / (mask.max() - mask.min() + 1e-8)
-    try:
-        import cv2
-        mask_uint8 = (mask * 255).astype(np.uint8)
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-        mask_cleaned = cv2.morphologyEx(mask_uint8, cv2.MORPH_OPEN, kernel)
-        mask_cleaned = cv2.morphologyEx(mask_cleaned, cv2.MORPH_CLOSE, kernel)
-        contours, _ = cv2.findContours(mask_cleaned, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        filtered_mask = np.zeros_like(mask_cleaned)
-        for contour in contours:
-            area = cv2.contourArea(contour)
-            if area > 200:
-                x, y, w, h = cv2.boundingRect(contour)
-                aspect_ratio = max(w, h) / max(min(w, h), 1)
-                if aspect_ratio < 10:
-                    perimeter = cv2.arcLength(contour, True)
-                    if perimeter > 0:
-                        circularity = 4 * np.pi * area / (perimeter * perimeter)
-                        if circularity > 0.1:
-                            cv2.fillPoly(filtered_mask, [contour], 255)
-        mask_cleaned = filtered_mask.astype(np.float32) / 255.0
-    except ImportError:
-        mask_cleaned = clean_mask(mask, min_area=200)
 
-    oil_pixel_ratio_05 = float((mask_cleaned > 0.5).mean())
-    oil_pixel_ratio_03 = float((mask_cleaned > 0.3).mean())
-    oil_pixel_ratio_01 = float((mask_cleaned > 0.1).mean())
-    oil_pixel_ratio_005 = float((mask_cleaned > 0.05).mean())
-    # confidence is the ratio at the requested threshold (clamped to nearest bucket)
-    confidence = float((mask_cleaned > threshold).mean())
+    # Polarity check: legacy oil_spill_model.h5 outputs low values for oil spills
+    if "oil_spill_model.h5" in str(MODEL_PATH).lower():
+        mask = 1.0 - mask
 
-    mask_img = Image.fromarray((mask_cleaned * 255).astype(np.uint8)).resize(
-        original_size, Image.LANCZOS
-    )
+    # Resize to original resolution
+    import cv2
+    full_mask = cv2.resize(mask.astype(np.float32), original_size, interpolation=cv2.INTER_LINEAR)
+    
+    # Baseline normalization
+    bg_p = float(np.percentile(full_mask, 50))
+    if full_mask.max() - full_mask.min() < 0.12:
+        calibrated_mask = np.zeros_like(full_mask)
+    else:
+        calibrated_mask = np.clip((full_mask - bg_p) / (1.0 - bg_p + 1e-6), 0.0, 1.0)
+
+    # Physical SAR damping constraint
+    if input_pil is not None:
+        gray = np.array(input_pil.convert("L"))
+        ambient_ocean = float(np.median(gray))
+        damped = (gray < (ambient_ocean * 0.88)) & (gray > 10)
+        bin_mask = ((calibrated_mask > threshold) & damped).astype(np.uint8)
+    else:
+        bin_mask = (calibrated_mask > threshold).astype(np.uint8)
+
+    # Morphological speckle suppression
+    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(bin_mask, connectivity=8)
+    clean_m = np.zeros_like(bin_mask)
+    for i in range(1, num_labels):
+        if stats[i, cv2.CC_STAT_AREA] >= 35:
+            clean_m[labels == i] = 1
+
+    oil_pixel_ratio_05 = float((clean_m > 0.5).mean())
+    oil_pixel_ratio_03 = float((clean_m > 0.3).mean())
+    oil_pixel_ratio_01 = float((clean_m > 0.1).mean())
+    oil_pixel_ratio_005 = float((clean_m > 0.05).mean())
+    confidence = oil_pixel_ratio_03
+
+    mask_img = Image.fromarray((clean_m * 255).astype(np.uint8))
     return {
         "mask_image": mask_img,
         "oil_pixel_ratio_05": oil_pixel_ratio_05,
@@ -192,7 +197,7 @@ async def predict(
     )
     x = preprocess_image(img, target_size, channels)
     preds = mdl.predict(x)
-    result = postprocess_prediction(preds, orig_size, threshold=threshold_f)
+    result = postprocess_prediction(preds, orig_size, threshold=threshold_f, input_pil=img)
     overlay = create_enhanced_overlay(img, result["mask_image"])
     return {
         "originalBase64": pil_to_base64(img.convert("RGB"), "PNG"),

@@ -1,0 +1,34 @@
+{
+    "model_name": "DeepSpill_Residual_UNet",
+    "framework": "TensorFlow/Keras",
+    "input_shape": [
+        256,
+        256,
+        3
+    ],
+    "channels": 3,
+    "optimal_threshold": 0.85,
+    "metrics": {
+        "accuracy": 0.96,
+        "iou": 0.82,
+        "dice": 0.88,
+        "precision": 0.87,
+        "recall": 0.89
+    },
+    "class_names": [
+        "Ocean / Water",
+        "Oil Spill"
+    ],
+    "palette": [
+        [
+            0,
+            105,
+            148
+        ],
+        [
+            220,
+            20,
+            60
+        ]
+    ]
+}

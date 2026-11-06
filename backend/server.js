@@ -106,6 +106,33 @@ app.get('/api/history', (_req, res) => {
   res.json(rows);
 });
 
+// ── Preloaded Satellite Benchmark Samples ─────────────────────────────────────
+const sampleMap = {
+  sample1: { name: '51439.jpg', label: 'Tier 3 Major Slick (51439)', path: path.join(__dirname, '..', '51439.jpg') },
+  sample2: { name: 'img_0002.jpg', label: 'Look-Alike / Natural Surfactant', path: path.join(__dirname, '..', 'data', 'oil_spill', 'test', 'images', 'img_0002.jpg') },
+  sample3: { name: 'img_0001.jpg', label: 'Ship Bilge Trail (Linear Spill)', path: path.join(__dirname, '..', 'data', 'oil_spill', 'test', 'images', 'img_0001.jpg') },
+  sample4: { name: 'Oil (940).jpg', label: 'Open Ocean Slick (Oil 940)', path: path.join(__dirname, '..', 'Oil (940).jpg') },
+};
+
+app.get('/api/samples', (_req, res) => {
+  const list = Object.entries(sampleMap).map(([id, info]) => ({
+    id,
+    name: info.name,
+    label: info.label,
+    available: fs.existsSync(info.path)
+  })).filter(s => s.available);
+  res.json(list);
+});
+
+app.get('/api/sample/:id', (req, res) => {
+  const item = sampleMap[req.params.id];
+  if (item && fs.existsSync(item.path)) {
+    res.sendFile(item.path);
+  } else {
+    res.status(404).json({ message: 'Sample image not found' });
+  }
+});
+
 // ── Static frontend (production build) ───────────────────────────────────────
 const frontendDist = path.join(__dirname, '..', 'frontend', 'dist');
 if (fs.existsSync(frontendDist)) {

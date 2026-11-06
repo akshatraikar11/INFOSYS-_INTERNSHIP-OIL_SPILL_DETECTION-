@@ -20,3 +20,15 @@ export async function getHistory() {
   if (!res.ok) throw new Error('Failed to load history');
   return res.json();
 }
+
+export async function getSamples() {
+  const res = await fetch(`${API_BASE}/samples`);
+  if (!res.ok) return [];
+  return res.json();
+}
+
+export async function fetchSampleBlob(sampleId) {
+  const res = await fetch(`${API_BASE}/sample/${sampleId}`);
+  if (!res.ok) throw new Error('Failed to load sample image');
+  return res.blob();
+}
