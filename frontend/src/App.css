@@ -51,7 +51,7 @@ body {
   padding: 1.5rem 2rem 3rem;
 }
 
-/* ── HUD HEADER ────────────────────────────────────────────── */
+/* Hud Header */
 .hud-header {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -144,7 +144,7 @@ body {
   font-size: 0.95rem;
 }
 
-/* ── HUD TABS ──────────────────────────────────────────────── */
+/* Hud Tabs */
 .hud-tabs {
   display: flex;
   gap: 0.75rem;
@@ -177,7 +177,7 @@ body {
   box-shadow: 0 0 16px rgba(0, 242, 254, 0.2);
 }
 
-/* ── HUD CARDS ─────────────────────────────────────────────── */
+/* Hud Cards */
 .hud-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -220,7 +220,7 @@ body {
   margin-bottom: 1rem;
 }
 
-/* ── PRESET BENCHMARK BUTTONS ──────────────────────────────── */
+/* Preset Benchmark Buttons */
 .preset-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -263,7 +263,7 @@ body {
   color: var(--cyan);
 }
 
-/* ── 2-COLUMN CONTROL GRID ─────────────────────────────────── */
+/* 2-Column Control Grid */
 .control-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -276,7 +276,7 @@ body {
   }
 }
 
-/* ── INPUT MODE TABS ───────────────────────────────────────── */
+/* Input Mode Tabs */
 .input-mode-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -316,7 +316,7 @@ body {
   box-shadow: 0 0 12px rgba(0, 242, 254, 0.15);
 }
 
-/* ── UPLOAD ZONE ───────────────────────────────────────────── */
+/* Upload Zone */
 .upload-container {
   margin-bottom: 1.25rem;
 }
@@ -394,7 +394,7 @@ body {
   color: var(--text-muted);
 }
 
-/* ── SELECTED PREVIEW CARD ─────────────────────────────────── */
+/* Selected Preview Card */
 .selected-preview-card {
   background: rgba(5, 11, 20, 0.8);
   border: 1px solid rgba(0, 242, 254, 0.3);
@@ -493,7 +493,7 @@ body {
   border-color: #ef4444;
 }
 
-/* ── BENCHMARK CONTAINER ───────────────────────────────────── */
+/* Benchmark Container */
 .benchmark-container {
   margin-bottom: 1.25rem;
 }
@@ -527,7 +527,7 @@ body {
   color: #ef4444;
 }
 
-/* ── HUD SELECT & CONTROL ROW ──────────────────────────────── */
+/* Hud Select & Control Row */
 .control-row {
   display: flex;
   justify-content: space-between;
@@ -558,7 +558,7 @@ body {
   box-shadow: 0 0 8px rgba(0, 242, 254, 0.3);
 }
 
-/* ── SLIDERS & CONTROLS ────────────────────────────────────── */
+/* Sliders & Controls */
 .controls-panel {
   background: rgba(5, 11, 20, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -598,7 +598,7 @@ body {
   color: var(--text-dim);
 }
 
-/* ── LAUNCH BUTTON ─────────────────────────────────────────── */
+/* Launch Button */
 .btn-launch {
   width: 100%;
   padding: 0.95rem;
@@ -629,7 +629,7 @@ body {
   box-shadow: none;
 }
 
-/* ── TELEMETRY / RESULTS ───────────────────────────────────── */
+/* Telemetry / Results */
 .empty-telemetry, .loading-state {
   display: flex;
   flex-direction: column;
@@ -656,7 +656,7 @@ body {
   margin-bottom: 1rem;
 }
 
-/* ── SEVERITY BANNERS ──────────────────────────────────────── */
+/* Severity Banners */
 .severity-banner {
   display: flex;
   align-items: flex-start;
@@ -713,7 +713,7 @@ body {
   line-height: 1.4;
 }
 
-/* ── METRICS TRIAD ─────────────────────────────────────────── */
+/* Metrics Triad */
 .metrics-triad {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -744,7 +744,7 @@ body {
   letter-spacing: 0.05em;
 }
 
-/* ── SENSITIVITY BREAKDOWN BAR ──────────────────────────────── */
+/* Sensitivity Breakdown Bar */
 .sensitivity-breakdown {
   background: rgba(5, 11, 20, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -780,7 +780,7 @@ body {
   color: var(--text-dim);
 }
 
-/* ── MULTI-VIEW GALLERY ────────────────────────────────────── */
+/* Multi-View Gallery */
 .view-selector {
   display: flex;
   gap: 0.4rem;
@@ -890,7 +890,7 @@ body {
   color: var(--text-main);
 }
 
-/* ── SQLITE LEDGER TABLE ───────────────────────────────────── */
+/* Sqlite Ledger Table */
 .btn-refresh {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -970,7 +970,7 @@ body {
   border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
-/* ── ARCHITECTURE TAB ──────────────────────────────────────── */
+/* Architecture Tab */
 .arch-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1002,7 +1002,7 @@ body {
   font-size: 0.95rem;
 }
 
-/* ── FOOTER ────────────────────────────────────────────────── */
+/* Footer */
 .hud-footer {
   text-align: center;
   padding: 2rem 1rem 1rem;
@@ -1018,7 +1018,7 @@ body {
   color: #475569;
 }
 
-/* ── ANIMATIONS ────────────────────────────────────────────── */
+/* Animations */
 @keyframes pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.4; transform: scale(0.9); }

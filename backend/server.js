@@ -4,8 +4,6 @@ import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
-// ponytail: node:sqlite is experimental in Node 22; upgrade to better-sqlite3 once
-//           node-gyp build toolchain is available in the project's CI environment.
 import { DatabaseSync } from 'node:sqlite';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -13,13 +11,12 @@ const PORT = process.env.PORT || 3001;
 const INFERENCE_URL = process.env.INFERENCE_URL || 'http://127.0.0.1:8000';
 const DB_PATH = path.join(__dirname, '..', 'oil_spill_detections.db');
 
-// CORS_ORIGINS: comma-separated list of allowed origins.
-// Defaults to '*' in dev; set explicitly in production (e.g. "https://myapp.com").
+// Allowed CORS origins (defaults to open for local development)
 const allowedOrigins = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(',').map((s) => s.trim())
   : null;
 
-// ── Database ──────────────────────────────────────────────────────────────────
+// Database initialization
 const db = new DatabaseSync(DB_PATH);
 db.exec(`
   CREATE TABLE IF NOT EXISTS detections (
@@ -32,19 +29,17 @@ db.exec(`
   )
 `);
 
-// ── Express setup ─────────────────────────────────────────────────────────────
 const app = express();
 app.use(
   cors(
     allowedOrigins
       ? {
           origin: (origin, cb) => {
-            // allow non-browser requests (curl, Postman) and listed origins
             if (!origin || allowedOrigins.includes(origin)) cb(null, true);
             else cb(new Error(`CORS: origin ${origin} not allowed`));
           },
         }
-      : undefined // open — fine for local dev
+      : undefined
   )
 );
 app.use(express.json());
@@ -61,7 +56,7 @@ const upload = multer({
   },
 });
 
-// ── Routes ────────────────────────────────────────────────────────────────────
+// API Routes
 app.post('/api/predict', upload.single('image'), async (req, res) => {
   if (!req.file) return res.status(400).json({ message: 'No image file uploaded' });
 
@@ -69,7 +64,6 @@ app.post('/api/predict', upload.single('image'), async (req, res) => {
   const tmpPath = req.file.path;
   try {
     const buf = fs.readFileSync(tmpPath);
-    // Pass through the original MIME type so the inference server gets the right format
     const mime = req.file.mimetype || 'image/jpeg';
     const body = new FormData();
     body.append('image', new Blob([buf], { type: mime }), req.file.originalname || 'image.jpg');
@@ -86,7 +80,6 @@ app.post('/api/predict', upload.single('image'), async (req, res) => {
     }
     const data = await inferenceRes.json();
 
-    // Persist summary (no base64 blobs in DB)
     db.prepare(
       `INSERT INTO detections (filename, confidence, threshold, spill) VALUES (?, ?, ?, ?)`
     ).run(req.file.originalname || 'unknown', data.confidence ?? 0, threshold, data.confidence >= threshold ? 1 : 0);
@@ -106,7 +99,7 @@ app.get('/api/history', (_req, res) => {
   res.json(rows);
 });
 
-// ── Preloaded Satellite Benchmark Samples ─────────────────────────────────────
+// Benchmark sample imagery routes
 const sampleMap = {
   sample1: { name: '51439.jpg', label: 'Tier 3 Major Slick (51439)', path: path.join(__dirname, '..', '51439.jpg') },
   sample2: { name: 'img_0002.jpg', label: 'Look-Alike / Natural Surfactant', path: path.join(__dirname, '..', 'data', 'oil_spill', 'test', 'images', 'img_0002.jpg') },
@@ -133,31 +126,27 @@ app.get('/api/sample/:id', (req, res) => {
   }
 });
 
-// ── Static frontend (production build) ───────────────────────────────────────
+// Static frontend serving for production builds
 const frontendDist = path.join(__dirname, '..', 'frontend', 'dist');
 if (fs.existsSync(frontendDist)) {
   app.use(express.static(frontendDist));
   app.get('*', (req, res) => {
     if (!req.path.startsWith('/api')) res.sendFile(path.join(frontendDist, 'index.html'));
   });
-} else {
-  console.warn('[warn] frontend/dist not found — run "npm run build" in frontend/ to enable static serving.');
 }
 
 const server = app.listen(PORT, () => {
-  console.log(`DeepSpill backend running at http://localhost:${PORT}`);
-  console.log(`Inference service expected at ${INFERENCE_URL}`);
+  console.log(`DeepSpill backend listening on http://localhost:${PORT}`);
+  console.log(`Connected to inference service at ${INFERENCE_URL}`);
   if (allowedOrigins) console.log(`CORS restricted to: ${allowedOrigins.join(', ')}`);
 });
 
-// ── Graceful shutdown ─────────────────────────────────────────────────────────
 function shutdown(signal) {
-  console.log(`\n[${signal}] Shutting down…`);
+  console.log(`\n[${signal}] Shutting down server...`);
   server.close(() => {
     db.close();
     process.exit(0);
   });
-  // Force-exit if connections linger beyond 5 s
   setTimeout(() => process.exit(1), 5000).unref();
 }
 process.on('SIGTERM', () => shutdown('SIGTERM'));

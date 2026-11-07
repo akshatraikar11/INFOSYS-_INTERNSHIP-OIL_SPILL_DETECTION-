@@ -77,15 +77,13 @@ def postprocess_prediction(pred, original_size, threshold=0.35, input_pil=None):
     if mask.min() < -1 or mask.max() > 1:
         mask = 1 / (1 + np.exp(-mask))
 
-    # Polarity check: legacy oil_spill_model.h5 outputs low values for oil spills
+    # Check model polarity
     if "oil_spill_model.h5" in str(MODEL_PATH).lower():
         mask = 1.0 - mask
 
-    # Resize to original resolution
     import cv2
     full_mask = cv2.resize(mask.astype(np.float32), original_size, interpolation=cv2.INTER_LINEAR)
     
-    # Baseline normalization
     bg_p = float(np.percentile(full_mask, 50))
     if full_mask.max() - full_mask.min() < 0.12:
         calibrated_mask = np.zeros_like(full_mask)
@@ -101,7 +99,6 @@ def postprocess_prediction(pred, original_size, threshold=0.35, input_pil=None):
     else:
         bin_mask = (calibrated_mask > threshold).astype(np.uint8)
 
-    # Morphological speckle suppression
     num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(bin_mask, connectivity=8)
     clean_m = np.zeros_like(bin_mask)
     for i in range(1, num_labels):

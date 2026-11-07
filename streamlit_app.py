@@ -9,9 +9,7 @@ import matplotlib.pyplot as plt
 import streamlit as st
 from PIL import Image
 
-# =============================================================================
-# 1. PAGE CONFIGURATION & HIGH-TECH CYBER-MARITIME STYLING
-# =============================================================================
+# Page configuration and layout styles
 st.set_page_config(
     page_title="DeepSpill AI | Autonomous Maritime Radar & Optical Monitoring",
     page_icon="🛰️",
@@ -171,9 +169,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# =============================================================================
-# 2. MODEL LOADER & BACKEND PIPELINE
-# =============================================================================
+# Model loading and inference pipeline
 @st.cache_resource
 def load_deepspill_model():
     """Locates and loads best U-Net model checkpoint."""
@@ -204,9 +200,7 @@ def load_deepspill_model():
 
 model, model_path = load_deepspill_model()
 
-# =============================================================================
-# 3. SIDEBAR TELEMETRY & MISSION CONTROLS
-# =============================================================================
+# Sidebar controls and parameter configuration
 with st.sidebar:
     st.markdown("### 🎛️ Mission Controls")
     
@@ -290,9 +284,7 @@ with st.sidebar:
         st.warning("● Standalone Heuristic SAR Filter Mode Active")
     st.caption("Infosys Springboard AI 6.0 | Master Milestone Project Pipeline")
 
-# =============================================================================
-# 4. MAIN DASHBOARD HEADER
-# =============================================================================
+# Dashboard header
 st.markdown("""
 <div class="hud-header">
     <div style="display: flex; justify-content: space-between; align-items: center;">
